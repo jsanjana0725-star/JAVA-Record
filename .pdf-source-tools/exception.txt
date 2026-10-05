@@ -1,0 +1,1338 @@
+Exception Handling in Java
+Exception handling is a mechanism in Java used to handle runtime errors so that the nor-
+mal flow of a program can be maintained.
+Examples of situations that may cause exceptions:
+ Dividing a number by zero
+ Accessing an invalid array index
+ Using a null object
+ Entering invalid data
+ Opening a file that does not exist
+1. Exception Handling Fundamentals
+An exception is an abnormal condition that occurs during the execution of a program and in-
+terrupt its normal flow.
+Java provides several keywords for handling exceptions:
+Keyword Purpose
+try Contains code that may generate an exception
+catch Handles the exception
+throw Explicitly throws an exception
+throws Declares exceptions that a method may throw
+finally Contains code that normally executes whether exception occurs or
+not
+Basic Syntax
+try {
+// Code that may cause exception
+}
+catch (ExceptionType e) {
+// Exception handling code
+}
+finally {
+// Code that executes after try/catch
+}
+Example
+class Demo {
+public static void main(String[] args) {
+try {
+int a = 10 / 0;
+System.out.println(a);
+}
+catch (ArithmeticException e) {
+
+-- 1 of 37 --
+
+System.out.println("Cannot divide by zero");
+}
+}
+}
+Output:
+Cannot divide by zero
+2. Exception Types
+Java exceptions are mainly classified into:
+A. Checked Exceptions
+These exceptions are checked by the compiler at compile time.
+Examples:
+ IOException
+ SQLException
+ ClassNotFoundException
+ FileNotFoundException
+Example:
+import java.io.*;
+class Demo {
+public static void main(String[] args) throws IOException {
+FileInputStream f =
+new FileInputStream("data.txt");
+}
+}
+Checked Exceptions – How to Handle
+Checked exceptions must be handled at compile time. Java provides two main ways:
+1. Using try-catch
+try {
+FileReader f = new FileReader("data.txt");
+} catch (FileNotFoundException e) {
+System.out.println("File not found");
+}
+2. Using throws
+void readFile() throws FileNotFoundException {
+FileReader f = new FileReader("data.txt");
+}
+
+-- 2 of 37 --
+
+👉 Simple rule: Checked exceptions must be caught using try-catch or declared using
+throws.
+B. Unchecked Exceptions
+These exceptions occur during runtime and are not checked by the compiler.
+Examples:
+ ArithmeticException
+ NullPointerException
+ ArrayIndexOutOfBoundsException
+ NumberFormatException
+Unchecked Exceptions – How to Handle
+Unchecked exceptions are not required to be handled at compile time, but they can be handled
+using try-catch.
+Example
+try {
+int a = 10 / 0;
+} catch (ArithmeticException e) {
+System.out.println("Cannot divide by zero");
+}
+C. Errors
+Errors represent serious problems in a Java application or JVM that programs generally can-
+not recover from.
+Examples:
+ OutOfMemoryError – Occurs when the JVM runs out of available memory.
+ StackOverflowError – Occurs when the call stack becomes too deep, usually due to infi-
+nite recursion.
+ VirtualMachineError – Indicates a serious problem with the Java Virtual Machine.
+Exceptions vs Errors
+Exception Error
+Usually caused by application conditions Usually caused by JVM/system problems
+Can generally be handled Generally should not be handled
+Example: IOException, ArithmeticEx-
+ception
+Example: OutOfMemoryError, StackOver-
+flowError
+Application can often recover Recovery is usually difficult or impossible
+
+-- 3 of 37 --
+
+3. Uncaught Exceptions
+If an exception occurs and there is no appropriate catch block to handle it, the exception be-
+comes an uncaught exception.
+The JVM's default exception handler:
+1. Displays the exception name.
+2. Displays the error message.
+3. Displays the stack trace.
+4. Terminates the program.
+Example
+class Demo {
+public static void main(String[] args) {
+int a = 10 / 0;
+System.out.println("Hello");
+}
+}
+Output:
+Exception in thread "main"
+java.lang.ArithmeticException: / by zero
+The statement:
+System.out.println("Hello");
+is never executed.
+4. Using try and catch
+The try block contains statements that may generate an exception.
+The catch block handles the exception.
+Syntax
+try {
+// Risky code
+}
+catch (ExceptionType e) {
+// Handling code
+}
+Example
+class Demo {
+
+-- 4 of 37 --
+
+public static void main(String[] args) {
+try {
+int result = 20 / 0;
+System.out.println(result);
+}
+catch (ArithmeticException e) {
+System.out.println("Division by zero is not allowed");
+}
+System.out.println("Program continues...");
+}
+}
+Output:
+Division by zero is not allowed
+Program continues...
+Important Point
+Once an exception occurs inside a try block, the remaining statements in that try block are
+skipped, and Java searches for a suitable catch block.
+5. Multiple catch Clauses
+A single try block can have multiple catch blocks to handle different types of exceptions.
+Example
+class Demo {
+public static void main(String[] args) {
+try {
+int a[] = {10, 20, 30};
+int result = 10 / 0;
+System.out.println(a[5]);
+}
+catch (ArithmeticException e) {
+System.out.println("Arithmetic exception occurred");
+}
+catch (ArrayIndexOutOfBoundsException e) {
+System.out.println("Array index is invalid");
+}
+catch (Exception e) {
+System.out.println("Some other exception occurred");
+}
+}
+}
+
+-- 5 of 37 --
+
+Important Rule
+The more specific exception must come before the more general exception.
+Correct:
+catch (ArithmeticException e) {
+}
+catch (Exception e) {
+}
+Incorrect:
+catch (Exception e) {
+}
+catch (ArithmeticException e) {
+}
+The second form causes a compile-time error because Exception already catches Arith-
+meticException.
+6. throw Keyword
+The throw keyword is used to explicitly throw an exception.
+Syntax
+throw new ExceptionType();
+Example
+class Demo {
+public static void main(String[] args) {
+int age = 15;
+if (age < 18) {
+throw new ArithmeticException("Not eligible to vote");
+}
+System.out.println("Eligible to vote");
+}
+}
+Output:
+Exception in thread "main"
+java.lang.ArithmeticException: Not eligible to vote
+Another Example
+class Demo {
+
+-- 6 of 37 --
+
+static void checkAge(int age) {
+if (age < 18) {
+throw new IllegalArgumentException(
+"Age must be 18 or above"
+);
+}
+System.out.println("Eligible");
+}
+public static void main(String[] args) {
+checkAge(15);
+}
+}
+7. throws Keyword
+The throws keyword is used in a method declaration to indicate that a method may throw
+one or more exceptions.
+Syntax
+returnType methodName() throws ExceptionType {
+// code
+}
+Example
+import java.io.*;
+class Demo {
+static void readFile() throws IOException {
+FileInputStream f =
+new FileInputStream("data.txt");
+}
+public static void main(String[] args)
+throws IOException {
+readFile();
+}
+}
+Here:
+throws IOException
+indicates that the method may generate an IOException.
+
+-- 7 of 37 --
+
+8. Difference Between throw and throws
+throw throws
+Used to explicitly throw an exception Used to declare exceptions
+Used inside a method/block Used in method declaration
+Throws one exception object at a time Can declare multiple exceptions
+Followed by an exception object Followed by exception class names
+Example: throw new Exception(); Example: void test() throws Exception
+Example
+throw new IOException();
+versus
+void test() throws IOException {
+}
+9. finally Block
+The finally block contains statements that are normally executed whether an exception occurs
+or not.
+It is commonly used for cleanup operations, such as closing files or releasing resources.
+Syntax
+try {
+// Code
+}
+catch (Exception e) {
+// Handling
+}
+finally {
+// Cleanup
+}
+Example
+class Demo {
+public static void main(String[] args) {
+try {
+int a = 10 / 0;
+}
+catch (ArithmeticException e) {
+System.out.println("Exception occurred");
+}
+finally {
+System.out.println("Finally block executed");
+
+-- 8 of 37 --
+
+}
+}
+}
+Output:
+Exception occurred
+Finally block executed
+Example Without Exception
+class Demo {
+public static void main(String[] args) {
+try {
+int a = 10 / 2;
+System.out.println(a);
+}
+finally {
+System.out.println("Finally block executed");
+}
+}
+}
+Output:
+5
+Finally block executed
+10. Creating Your Own Exception Subclasses
+Java allows programmers to create their own exceptions. These are called user-defined ex-
+ceptions or custom exceptions.
+To create a custom exception, extend the Exception class.
+Example
+class AgeException extends Exception {
+AgeException(String message) {
+super(message);
+}
+}
+Now we can use this exception in our program.
+class Demo {
+static void checkAge(int age)
+throws AgeException {
+
+-- 9 of 37 --
+
+if (age < 18) {
+throw new AgeException(
+"Age is less than 18"
+);
+}
+System.out.println("Eligible");
+}
+public static void main(String[] args) {
+try {
+checkAge(15);
+}
+catch (AgeException e) {
+System.out.println(e.getMessage());
+}
+}
+}
+Output:
+Age is less than 18
+How it works
+AgeException extends Exception
+↓
+Custom exception
+↓
+throw new AgeException()
+↓
+catch()
+↓
+Exception handled
+For example, if a student has attendance below 75%, we can create our own exception called
+LowAttendanceException.
+1. Create a Custom Exception
+class LowAttendanceException extends Exception {
+LowAttendanceException(String message) {
+super(message);
+}
+}
+Here, LowAttendanceException is our custom exception class.
+2. Use the Custom Exception
+
+-- 10 of 37 --
+
+class Student {
+static void checkAttendance(int attendance)
+throws LowAttendanceException {
+if (attendance < 75) {
+throw new LowAttendanceException(
+"Attendance is below 75%"
+);
+}
+System.out.println("Student is eligible");
+}
+public static void main(String[] args) {
+try {
+checkAttendance(65);
+}
+catch (LowAttendanceException e) {
+System.out.println(e.getMessage());
+}
+}
+}
+Output
+Attendance is below 75%
+How it works
+LowAttendanceException
+↓
+extends Exception
+↓
+throw new LowAttendanceException()
+↓
+try block
+↓
+catch block
+↓
+Exception handled
+11. Complete Example of Exception Handling
+class Demo {
+static void divide(int a, int b) {
+try {
+int result = a / b;
+
+-- 11 of 37 --
+
+System.out.println("Result = " + result);
+}
+catch (ArithmeticException e) {
+System.out.println("Cannot divide by zero");
+}
+finally {
+System.out.println("Division operation completed");
+}
+}
+public static void main(String[] args) {
+divide(20, 5);
+divide(20, 0);
+}
+}
+Output:
+Result = 4
+Division operation completed
+Cannot divide by zero
+Division operation completed
+Quick Revision
+Concept Meaning
+Exception Abnormal condition during program execu-
+tion
+try Contains risky code
+catch Handles an exception
+throw Explicitly throws an exception
+throws Declares possible exceptions
+finally Normally executes after try/catch
+Checked Exception Checked by compiler
+Unchecked Excep-
+tion Occurs at runtime
+Uncaught Exception Exception not handled by a suitable catch
+Custom Exception Programmer-defined exception
+
+-- 12 of 37 --
+
+Four Types of Exceptions in Java
+An exception is an abnormal condition that occurs during the execution of a program and interrupts
+the normal flow of execution. Java provides exception handling using try, catch, finally,
+throw, and throws.
+1. ArithmeticException
+An ArithmeticException occurs when an illegal arithmetic operation is performed, such as
+division by zero.
+Example:
+public class ArithmeticExceptionDemo {
+public static void main(String[] args) {
+try {
+int a = 10;
+int b = 0;
+int result = a / b;
+System.out.println(result);
+}
+catch (ArithmeticException e) {
+System.out.println("Cannot divide by zero.");
+}
+}
+}
+Output:
+Cannot divide by zero.
+2. ArrayIndexOutOfBoundsException
+This exception occurs when we try to access an array index that is outside its valid range.
+Example:
+public class ArrayExceptionDemo {
+public static void main(String[] args) {
+try {
+int[] numbers = {10, 20, 30};
+System.out.println(numbers[5]);
+}
+catch (ArrayIndexOutOfBoundsException e) {
+System.out.println("Array index is out of bounds.");
+}
+}
+}
+Output:
+Array index is out of bounds.
+3. NullPointerException
+A NullPointerException occurs when we try to use an object reference that contains null.
+
+-- 13 of 37 --
+
+Example:
+public class NullPointerExceptionDemo {
+public static void main(String[] args) {
+try {
+String name = null;
+System.out.println(name.length());
+}
+catch (NullPointerException e) {
+System.out.println("The object reference is null.");
+}
+}
+}
+Output:
+The object reference is null.
+4. NumberFormatException
+A NumberFormatException occurs when we try to convert a non-numeric string into a
+number.
+Example:
+public class NumberFormatExceptionDemo {
+public static void main(String[] args) {
+try {
+String value = "ABC";
+int number = Integer.parseInt(value);
+System.out.println(number);
+}
+catch (NumberFormatException e) {
+System.out.println("Invalid number format.");
+}
+}
+}
+Output:
+Invalid number format.
+Summary
+Exception Cause Example
+ArithmeticException Illegal arithmetic oper-
+ation 10 / 0
+ArrayIndexOutOfBoundsException Invalid array index arr[5] when size is 3
+NullPointerException Accessing a null ref-
+erence
+name.length() when name
+= null
+NumberFormatException Invalid string-to-number
+conversion
+Integer.par-
+seInt("ABC")
+
+-- 14 of 37 --
+
+Interfaces in Java
+1. Interfaces
+An interface in Java is a blueprint that defines a set of methods and constants that a class can im-
+plement. It is mainly used to achieve abstraction and multiple inheritance in Java.
+Key points:
+ An interface is declared using the interface keyword.
+interface Animal
+{
+void sound();
+}
+ A class uses the implements keyword to implement an interface.
+interface Animal {
+void sound();
+}
+class Dog implements Animal {
+public void sound() {
+System.out.println("Dog barks");
+}
+}
+ Interface methods are generally public and abstract by default.
+(public means the method can be accessed/implemented from outside the interface.
+abstract means the method only has a declaration, not a method body.)
+Example
+interface Animal {
+void sound();
+}
+The above is automatically treated as:
+interface Animal {
+public abstract void sound();
+}
+ Variables declared in an interface are automatically public, static, and final.
+Example
+interface Student {
+
+-- 15 of 37 --
+
+int MARKS = 100;
+}
+Java automatically treats it as:
+interface Student {
+public static final int MARKS = 100;
+}
+What does each keyword mean?
+public
+The variable can be accessed from anywhere.
+System.out.println(Student.MARKS);
+static
+The variable belongs to the interface itself, not to individual objects.
+You don't need to create an object:
+Student.MARKS
+final
+The value cannot be changed after it is assigned.
+Student.MARKS = 200; // ❌ Error
+ A class can implement multiple interfaces.
+interface Animal {
+void sound();
+}
+interface Pet {
+void play();
+}
+class Dog implements Animal, Pet {
+public void sound() {
+System.out.println("Dog barks");
+}
+public void play() {
+
+-- 16 of 37 --
+
+System.out.println("Dog plays");
+}
+}
+2. Defining an Interface
+An interface is defined using th
+e fol-
+lowing syntax:
+interface InterfaceName {
+// constants
+// abstract methods
+}
+Example:
+interface Vehicle {
+void start();
+void stop();
+}
+Here:
+ Vehicle is the interface.
+ start() and stop() are abstract methods.
+ The implementing class must provide definitions for these methods.
+
+-- 17 of 37 --
+
+3. Implementing Interfaces
+A class implements an interface using the implements keyword.
+Syntax:
+class ClassName implements InterfaceName {
+// method implementations
+}
+Example:
+interface Vehicle {
+void start();
+}
+class Car implements Vehicle {
+public void start() {
+System.out.println("Car starts");
+}
+}
+class Test {
+public static void main(String[] args) {
+Car c = new Car();
+c.start();
+}
+}
+
+-- 18 of 37 --
+
+Output:
+Car starts
+We cannot directly create an object of an interface.
+interface Animal {
+void sound();
+}
+Animal a = new Animal(); // ❌ Error
+An interface usually contains abstract methods without implementation. Therefore, Java cannot
+create a direct object of the interface.
+Implementing Multiple Interfaces
+Java allows a class to implement more than one interface.
+interface Printable {
+void print();
+}
+interface Showable {
+void show();
+}
+class Demo implements Printable, Showable {
+public void print() {
+System.out.println("Printing");
+}
+public void show() {
+System.out.println("Showing");
+}
+}
+4. Nested Interfaces
+An interface declared inside another interface or class is called a nested interface.
+Interface inside an Interface
+interface Outer {
+interface Inner {
+void display();
+}
+}
+class Demo implements Outer.Inner {
+public void display() {
+System.out.println("Nested Interface");
+}
+}
+Here, Inner is a nested interface inside Outer.
+
+-- 19 of 37 --
+
+It can be accessed using:
+Outer.Inner
+Interface inside a Class
+class Test {
+interface MyInterface {
+void display();
+}
+}
+class Demo implements Test.MyInterface {
+public void display() {
+System.out.println("Hello");
+}
+}
+5. Applying Interfaces
+Interfaces are commonly applied to achieve:
+1. Abstraction
+2. Multiple inheritance
+3. Polymorphism
+4. Standardization of behavior
+*Abstraction
+Abstraction means hiding implementation details and showing only the necessary functional-
+ity.
+interface Vehicle {
+void start();
+}
+class Car implements Vehicle {
+public void start() {
+System.out.println("Car starts with a key");
+}
+}
+Here:
+Vehicle v = new Car();
+v.start();
+The user knows that the vehicle can start, but the implementation details are hidden.
+Simple meaning:
+Interface tells what to do, while the implementing class tells how to do it.
+*Multiple Inheritance
+Java does not allow a class to extend multiple classes.
+class C extends A, B { } // ❌ Not allowed
+
+-- 20 of 37 --
+
+But a class can implement multiple interfaces.
+interface A {
+void show();
+}
+interface B {
+void display();
+}
+class C implements A, B {
+public void show() {
+System.out.println("Show");
+}
+public void display() {
+System.out.println("Display");
+}
+}
+Here, class C gets the behavior requirements of both A and B.
+Loose Coupling Reduce dependency between classes
+Polymorphism One interface, many implementations
+Standardization Common rules for implementing classes
+*Polymorphism
+Polymorphism means one interface reference can refer to objects of different implementing
+classes.
+interface Animal {
+void sound();
+}
+class Dog implements Animal {
+public void sound() {
+System.out.println("Dog barks");
+}
+}
+class Cat implements Animal {
+public void sound() {
+System.out.println("Cat meows");
+}
+}
+Now:
+Animal a;
+a = new Dog();
+a.sound();
+a = new Cat();
+a.sound();
+Output:
+
+-- 21 of 37 --
+
+Dog barks
+Cat meows
+The same reference:
+Animal a
+can refer to different objects.
+Simple meaning:
+One interface, many implementations.
+*Standardization of Behavior
+An interface can define a common set of methods that every implementing class must provide.
+interface Bank {
+void deposit();
+void withdraw();
+}
+Different banks can implement it:
+class SBI implements Bank {
+public void deposit() {
+System.out.println("SBI Deposit");
+}
+public void withdraw() {
+System.out.println("SBI Withdrawal");
+}
+}
+class HDFC implements Bank {
+public void deposit() {
+System.out.println("HDFC Deposit");
+}
+public void withdraw() {
+System.out.println("HDFC Withdrawal");
+}
+}
+Both classes must provide:
+deposit()
+withdraw()
+Therefore, the interface establishes a common standard.
+6. Variables in Interfaces
+Variables declared inside an interface are automatically:
+
+-- 22 of 37 --
+
+public static final
+Therefore, they are constants.
+Example:
+interface Constants {
+int MAX = 100;
+}
+The above is equivalent to:
+interface Constants {
+public static final int MAX = 100;
+}
+The value cannot be changed.
+class Test {
+public static void main(String[] args) {
+System.out.println(Constants.MAX);
+}
+}
+Output:
+100
+The following is invalid:
+Constants.MAX = 200;
+because MAX is final.
+
+-- 23 of 37 --
+
+I/O Streams in Java
+I/O (Input/Output) Streams are used in Java to read data from a source and write data to
+a destination.
+Java provides two main types of streams:
+1. Byte Streams – handle data byte by byte.
+2. Character Streams – handle data character by character.
+1. Byte Streams
+Byte streams are mainly used for binary data, such as images, audio, video, and PDF files.
+The main classes are:
+ InputStream
+ OutputStream
+ FileInputStream
+ FileOutputStream
+A. InputStream
+InputStream is an abstract class used to read bytes from an input source.
+Common method:
+int read()
+It reads one byte at a time.
+Example
+import java.io.*;
+class Demo {
+public static void main(String[] args) throws IOException {
+InputStream in = System.in;
+int data = in.read();
+System.out.println("Character: " + (char)data);
+}
+}
+If the user enters:
+A
+Output:
+Character: A
+
+-- 24 of 37 --
+
+2. OutputStream
+OutputStream is an abstract class used to write bytes to an output destination.
+Common methods:
+write(int b)
+write(byte[] b)
+close()
+Example
+import java.io.*;
+class Demo {
+public static void main(String[] args) throws IOException {
+OutputStream out = System.out;
+out.write(65);
+}
+}
+Output:
+A
+Because ASCII value 65 represents A.
+3. FileInputStream
+FileInputStream is used to read bytes from a file.
+Example
+Suppose input.txt contains:
+Hello Java
+Program:
+import java.io.*;
+class Demo {
+public static void main(String[] args) throws IOException {
+FileInputStream fis =
+new FileInputStream("input.txt");
+int ch;
+while ((ch = fis.read()) != -1) {
+System.out.print((char) ch);
+}
+
+-- 25 of 37 --
+
+fis.close();
+}
+}
+Output:
+Hello Java
+Important point
+read() returns:
+ byte value when data is available
+ -1 when the end of the file is reached
+4. FileOutputStream
+FileOutputStream is used to write bytes into a file.
+Example
+import java.io.*;
+class Demo {
+public static void main(String[] args) throws IOException {
+FileOutputStream fos =
+new FileOutputStream("output.txt");
+String msg = "Welcome to Java";
+fos.write(msg.getBytes());
+fos.close();
+System.out.println("Data written successfully");
+}
+}
+The file output.txt will contain:
+Welcome to Java
+5. Copying a File Using Byte Streams
+A common application of FileInputStream and FileOutputStream is file copying.
+import java.io.*;
+class FileCopy {
+public static void main(String[] args) throws IOException {
+
+-- 26 of 37 --
+
+FileInputStream fis =
+new FileInputStream("input.txt");
+FileOutputStream fos =
+new FileOutputStream("copy.txt");
+int data;
+while ((data = fis.read()) != -1) {
+fos.write(data);
+}
+fis.close();
+fos.close();
+System.out.println("File copied successfully");
+}
+}
+Flow
+input.txt
+↓
+FileInputStream
+↓
+Program
+↓
+FileOutputStream
+↓
+copy.txt
+Character Streams
+Character streams are designed for text data.
+They are useful when working with:
+ Text files
+ Characters
+ Strings
+ Unicode text
+The main classes are:
+Reader
+Writer
+FileReader
+FileWriter
+
+-- 27 of 37 --
+
+Reader
+Reader is an abstract class used to read character data.
+Common methods:
+read() - reads one character at a time.
+read(char[] c) - reads multiple characters at once into a character array.
+close()
+Example
+import java.io.*;
+class Demo {
+public static void main(String[] args) throws IOException {
+Reader reader = new FileReader("input.txt");
+int ch;
+while ((ch = reader.read()) != -1) {
+System.out.print((char) ch);
+}
+reader.close();
+}
+}
+import java.io.*;
+public class ReadArrayExample {
+public static void main(String[] args) throws Exception {
+Reader r = new FileReader("input.txt");
+char[] c = new char[5];
+int n;
+while ((n = r.read(c)) != -1) {
+System.out.print(new String(c, 0, n));
+}
+r.close();
+}
+}
+
+-- 28 of 37 --
+
+8. Writer
+Writer is an abstract class used to write character data.
+Common methods:
+Write() - puts data into the writer/buffer.
+flush() - forces buffered data to the destination.
+Close() - flushes the data and then closes the writer.
+Example
+import java.io.*;
+class Demo {
+public static void main(String[] args) throws IOException {
+Writer writer = new FileWriter("output.txt");
+writer.write("Hello Java");
+writer.close();
+System.out.println("Data written");
+}
+}
+9. FileReader
+FileReader is used to read character data from a text file.
+import java.io.*;
+class Demo {
+public static void main(String[] args) throws IOException {
+FileReader fr = new FileReader("input.txt");
+int ch;
+while ((ch = fr.read()) != -1) {
+System.out.print((char) ch);
+}
+fr.close();
+}
+}
+
+-- 29 of 37 --
+
+10. FileWriter
+FileWriter is used to write character data into a text file.
+import java.io.*;
+class Demo {
+public static void main(String[] args) throws IOException {
+FileWriter fw = new FileWriter("output.txt");
+fw.write("Java Character Streams");
+fw.close();
+System.out.println("Successfully written");
+}
+}
+Byte Streams vs Character Streams
+Byte Streams Character Streams
+Handle bytes Handle characters
+Used for binary data Used mainly for text
+InputStream Reader
+OutputStream Writer
+FileInputStream FileReader
+FileOutputStream FileWriter
+Suitable for images, audio,
+etc. Suitable for text files
+8-bit-oriented data Character/Unicode-oriented
+text
+Easy way to remember
+Java I/O Streams
+|
+┌─────────┴─────────┐
+↓ ↓
+Byte Streams Character Streams
+| |
+InputStream Reader
+OutputStream Writer
+| |
+FileInputStream FileReader
+FileOutputStream FileWriter
+Key difference
+
+-- 30 of 37 --
+
+Byte Stream:
+FileInputStream
+FileOutputStream
+→ works with bytes
+Character Stream:
+FileReader
+FileWriter
+→ works with characters/text
+
+-- 31 of 37 --
+
+Packages in Java
+A package in Java is a collection of related classes, interfaces, and sub-packages. Packages are used
+to organize Java programs and avoid naming conflicts.
+Examples of built-in packages:
+ java.lang – String, Math, System, Object, etc.
+ java.util – Scanner, ArrayList, HashMap, etc.
+ java.io – File, InputStream, OutputStream, etc.
+ java.sql – JDBC classes.
+1. Defining a Package
+A package is defined using the package keyword. It must appear at the beginning of the Java
+source file.
+Syntax
+package package_name;
+class ClassName {
+// class members
+}
+Example
+package mypack;
+public class Student {
+public void display() {
+System.out.println("Student class");
+}
+}
+Here, Student belongs to the package mypack.
+Directory structure
+mypack/
+Student.java
+Compile using:
+javac -d . Student.java
+This creates:
+mypack/
+Student.class
+
+-- 32 of 37 --
+
+2. Finding Packages and CLASSPATH
+The CLASSPATH tells the Java compiler and JVM where to search for .class files and pack-
+ages.
+Suppose we have:
+C:\JavaProject\
+mypack\
+Student.class
+Test.java
+Test.java imports Student:
+import mypack.Student;
+public class Test {
+public static void main(String[] args) {
+Student s = new Student();
+s.display();
+}
+}
+Compile:
+javac -cp . Test.java
+Run:
+java -cp . Test
+Here, . means the current directory.
+Setting CLASSPATH in Linux
+export CLASSPATH=.:/home/user/java
+Check it using:
+echo $CLASSPATH
+Setting CLASSPATH in Windows
+set CLASSPATH=.;C:\JavaProject
+Note: In modern Java development, using -cp/--class-path with each command
+is generally preferred over setting a permanent CLASSPATH.
+3. A Short Package Example
+Let us create a package called mypack.
+File: Student.java
+package mypack;
+
+-- 33 of 37 --
+
+public class Student {
+public void show() {
+System.out.println("Welcome to Java Packages");
+}
+}
+Compile:
+javac -d . Student.java
+Now create another file outside the package.
+File: Test.java
+import mypack.Student;
+public class Test {
+public static void main(String[] args) {
+Student s = new Student();
+s.show();
+}
+}
+Compile and execute:
+javac Test.java
+java Test
+Output
+Welcome to Java Packages
+4. Packages and Member Access
+Access to class members depends on their access modifier.
+Modifier Same Class Same Package Subclass in Different Package Other Package
+private ✓ ✗ ✗ ✗
+Default ✓ ✓ ✗ ✗
+protected ✓ ✓ ✓* ✗
+public ✓ ✓ ✓ ✓
+* protected access from another package is available through inheritance, subject to Java's pro-
+tected-access rules.
+Example
+package pack1;
+public class Demo {
+private int a = 10;
+int b = 20;
+protected int c = 30;
+public int d = 40;
+}
+Another class in the same package can access:
+
+-- 34 of 37 --
+
+b
+c
+d
+but cannot directly access:
+a
+because a is private.
+A class in a different package can directly access only:
+d
+because it is public (with the appropriate protected/inheritance case for c).
+5. Importing Packages
+The import statement allows us to use classes from another package without writing their com-
+plete package name every time.
+Syntax
+import package_name.ClassName;
+Example
+import java.util.Scanner;
+public class Demo {
+public static void main(String[] args) {
+Scanner sc = new Scanner(System.in);
+System.out.print("Enter your name: ");
+String name = sc.nextLine();
+System.out.println("Hello " + name);
+}
+}
+Without import, we could write:
+java.util.Scanner sc = new java.util.Scanner(System.in);
+Importing all classes from a package
+We can use *:
+import java.util.*;
+Example:
+import java.util.*;
+public class Demo {
+
+-- 35 of 37 --
+
+public static void main(String[] args) {
+Scanner sc = new Scanner(System.in);
+ArrayList<String> names = new ArrayList<>();
+names.add("Ravi");
+names.add("Sita");
+System.out.println(names);
+}
+}
+Important
+import java.util.*;
+imports classes directly inside java.util; it does not import sub-packages.
+For example:
+import java.util.*;
+does not automatically import classes from:
+java.util.concurrent
+6. Complete Package Example
+Directory structure
+Project/
+│
+├── mypack/
+│ └── Calculator.java
+│
+└── Main.java
+Calculator.java
+package mypack;
+public class Calculator {
+public int add(int a, int b) {
+return a + b;
+}
+public int multiply(int a, int b) {
+return a * b;
+}
+}
+Compile:
+javac -d . mypack/Calculator.java
+
+-- 36 of 37 --
+
+Main.java
+import mypack.Calculator;
+public class Main {
+public static void main(String[] args) {
+Calculator c = new Calculator();
+System.out.println("Addition = " + c.add(10, 20));
+System.out.println("Multiplication = " + c.multiply(10, 20));
+}
+}
+Compile:
+javac Main.java
+Run:
+java Main
+Output
+Addition = 30
+Multiplication = 200
+7. Advantages of Packages
+1. Organizes classes into logical groups.
+2. Avoids naming conflicts between classes.
+3. Provides access protection.
+4. Makes programs easier to maintain.
+5. Allows code reuse.
+6. Makes large Java applications easier to manage.
+In short
+Package
+↓
+Collection of related classes/interfaces
+↓
+package keyword → Define package
+import keyword → Use classes from package
+CLASSPATH → Find packages/classes
+Access modifiers → Control package member access
+
+-- 37 of 37 --
+

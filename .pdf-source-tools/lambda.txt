@@ -1,0 +1,863 @@
+Lambda Expressions in Java
+Definition : Lambda expressions were introduced in Java 8. They provide a sim-
+ple and short way to write the implementation of a functional interface.
+In Java, a functional interface is an interface that has exactly one abstract
+method.
+Simple example
+@FunctionalInterface
+interface Calculator {
+int calculate(int a, int b);
+}
+Calculator is a functional interface because it contains only one abstract
+method: calculate().
+functional reference contain only one abstract method. The main reason is to
+avoid ambiguity when a lambda expression is used.
+Example
+interface Calculator {
+int add(int a, int b);
+int subtract(int a, int b);
+}
+Now:
+Calculator c = (a, b) -> a + b;
+The problem is that the lambda syntax:
+(a, b) -> a + b
+does not contain the method name add.
+Java sees:
+(a, b) -> a + b
+↓
+int, int → int
+Both methods match:
+
+-- 1 of 28 --
+
+add(int, int) → int
+subtract(int, int) → int
+So Java cannot say:
+"a + b looks like addition, therefore use add()."
+Introducing Lambda Expressions
+Definition
+A lambda expression is an anonymous function that does not have a name, re-
+turn type, or access modifier.
+Syntax
+(parameters) -> expression
+Ex: (a, b) -> a + b
+or
+(parameters) -> {
+// statements
+}
+Ex: (a, b) -> { int sum = a + b; return sum; }
+Traditional Approach vs Lambda Expression
+Instead of creating a class: Traditional Approach
+class Addition implements Calculator {
+public int calculate(int a, int b) {
+return a + b;
+}
+}
+Using Lambda Expression
+Instead of creating a separate Addition class, we can directly provide the imple-
+mentation using a lambda expression:
+@FunctionalInterface
+interface Calculator {
+
+-- 2 of 28 --
+
+int calculate(int a, int b);
+}
+public class Demo {
+public static void main(String[] args) {
+Calculator c = (a, b) -> a + b;
+System.out.println(c.calculate(10, 20));
+}
+ Calculator c = (a, b) -> a + b;
+ (a, b) → parameters of calculate()
+ -> → lambda operator
+ a + b → implementation of calculate()
+Block Lambda Expressions
+A lambda containing multiple statements is called a block lambda expres-
+sion.
+Example
+interface Calculator {
+int calculate(int a, int b);
+}
+Using block lambda:
+class Demo {
+public static void main(String[] args) {
+Calculator c = (a, b) -> {
+int result = a + b;
+System.out.println("Calculating...");
+return result;
+};
+System.out.println(c.calculate(10, 20));
+}
+}
+
+-- 3 of 28 --
+
+Output
+Calculating...
+30
+Expression Lambda
+(a, b) -> a + b
+Block Lambda
+(a, b) -> {
+int result = a + b;
+return result;
+}
+Note: When a block lambda returns a value, the return statement is required.
+Generic Functional Interfaces in Java
+A Generic Functional Interface is a functional interface that uses generics so
+that the same interface can work with different data types.
+1. Simple Functional Interface
+@FunctionalInterface
+interface Calculator {
+int calculate(int a, int b);
+}
+This works only with int.
+2. Generic Functional Interface
+We can make it generic using <T>:
+@FunctionalInterface
+interface Calculator<T> {
+T calculate(T a, T b);
+}
+Now the same interface can work with different types.
+Example 1: Integer
+Calculator<Integer> c1 = (a, b) -> a + b;
+System.out.println(c1.calculate(10, 20));
+
+-- 4 of 28 --
+
+Output:
+30
+Example 2: String
+Calculator<String> c2 = (a, b) -> a + b;
+System.out.println(c2.calculate("Hello ", "Java"));
+Output:
+Hello Java
+How it works
+Calculator<Integer>
+means:
+T is replaced by Integer.
+So:
+T calculate(T a, T b);
+becomes:
+Integer calculate(Integer a, Integer b);
+Similarly,
+Calculator<String>
+becomes:
+String calculate(String a, String b);
+Complete Example
+@FunctionalInterface
+interface Calculator<T> {
+T calculate(T a, T b);
+}
+public class Main {
+public static void main(String[] args) {
+Calculator<Integer> c1 = (a, b) -> a + b;
+
+-- 5 of 28 --
+
+System.out.println(c1.calculate(10, 20));
+Calculator<String> c2 = (a, b) -> a + b;
+System.out.println(c2.calculate("Hello ", "Java"));
+}
+}
+Output:
+30
+Hello Java
+
+-- 6 of 28 --
+
+Passing Lambda Expressions as Arguments in Java
+A lambda expression can be passed as an argument to a method, just like an object or a value.
+The method must accept a functional interface as its parameter.
+Simple Example
+@FunctionalInterface
+interface Calculator {
+int calculate(int a, int b);
+}
+Now create a method that accepts Calculator as an argument:
+class Demo {
+static void perform(int a, int b, Calculator c) {
+System.out.println(c.calculate(a, b));
+}
+public static void main(String[] args) {
+perform(10, 5, (x, y) -> x + y);
+perform(10, 5, (x, y) -> x - y);
+perform(10, 5, (x, y) -> x * y);
+}
+}
+Another Example
+interface Greeting {
+void sayHello(String name);
+}
+class Demo {
+static void display(Greeting g) {
+g.sayHello("Ramesh");
+}
+public static void main(String[] args) {
+display(name -> System.out.println("Hello " + name));
+}
+}
+Advantages
+1. Passes behavior as an argument.
+2. Reduces the need to create separate implementation classes.
+3. Makes programs concise and readable.
+4. Supports functional programming in Java.
+5. Useful with collections, streams, threads, and event handling.
+
+-- 7 of 28 --
+
+Thread Synchronization in Java
+1. Definition
+Thread synchronization is a mechanism used to control the access of multiple threads to a
+shared resource.
+When multiple threads access the same data simultaneously, it may lead to data inconsis-
+tency. Synchronization ensures that only one thread can access the critical section at a
+time.
+2. Why is Synchronization Needed?
+Consider two threads trying to increment the same variable:
+count++;
+If both threads execute this statement at the same time, the final value may not be correct.
+Synchronization solves this problem by allowing only one thread at a time to execute the
+synchronized code.
+3. Simple Example
+class Counter {
+int count = 0;
+synchronized void increment() {
+count++;
+}
+}
+class MyThread extends Thread {
+Counter c;
+MyThread(Counter c) {
+this.c = c;
+}
+public void run() {
+for (int i = 1; i <= 1000; i++) {
+c.increment();
+}
+}
+}
+class SynchronizationDemo {
+public static void main(String[] args) throws Exception {
+Counter c = new Counter();
+
+-- 8 of 28 --
+
+MyThread t1 = new MyThread(c);
+MyThread t2 = new MyThread(c);
+t1.start();
+t2.start();
+t1.join();
+t2.join();
+System.out.println("Final Count = " + c.count);
+}
+}
+Output
+Final Count = 2000
+Here, both threads share the same Counter object.
+synchronized void increment()
+ensures that only one thread can execute increment() at a time.
+4. Synchronized Method
+A method can be declared using the synchronized keyword.
+synchronized void display() {
+// critical section
+}
+Only one thread can execute this synchronized method on the same object at a time.
+Example
+class Table {
+synchronized void printTable(int n) {
+for (int i = 1; i <= 5; i++) {
+System.out.println(n * i);
+try {
+Thread.sleep(100);
+} catch (Exception e) {
+}
+}
+}
+}
+If two threads use the same Table object, synchronization prevents their outputs from getting
+mixed.
+
+-- 9 of 28 --
+
+5. Synchronized Block
+Instead of synchronizing the entire method, we can synchronize only the critical section.
+synchronized (object) {
+// critical section
+}
+Example:
+class Counter {
+int count = 0;
+void increment() {
+synchronized (this) {
+count++;
+}
+}
+}
+This is useful when only a small portion of the method needs synchronization.
+Simple way to remember
+Synchronized Method
+↓
+Entire method is locked
+Synchronized Block
+↓
+Only required code is locked
+6. Advantages
+1. Prevents data inconsistency.
+2. Avoids race conditions.
+3. Provides thread safety.
+4. Controls access to shared resources.
+5. Ensures that only one thread executes the critical section at a time.
+
+-- 10 of 28 --
+
+Conclusion
+Thread synchronization is an important feature of Java multithreading that provides safe
+access to shared resources. The synchronized keyword can be applied to a method or block
+to ensure that only one thread accesses the critical section at a time.
+
+-- 11 of 28 --
+
+Thread Life Cycle in Java
+Definition
+The thread life cycle represents the different states through which a thread
+passes from its creation until its completion. Java provides the Thread.State enu-
+meration to represent these states.
+Thread Life Cycle Diagram
+start()
+┌──────────────────┐
+│ ▼
+NEW ──────────────► RUNNABLE
+│
+┌───────────┼───────────┐
+│ │ │
+▼ ▼ ▼
+BLOCKED WAITING TIMED_WAITING
+│ │ │
+└───────────┼───────────┘
+│
+▼
+RUNNABLE
+│
+run() completes
+│
+▼
+TERMINATED
+1. NEW State
+When a thread object is created but start() has not been called, the thread is in
+the NEW state.
+Thread t = new Thread();
+System.out.println(t.getState());
+Output:
+NEW
+
+-- 12 of 28 --
+
+2. RUNNABLE State
+When start() is called, the thread becomes RUNNABLE. It is eligible to be sched-
+uled for execution.
+t.start();
+The JVM's thread scheduler decides when the thread gets CPU time.
+3. BLOCKED State
+A thread enters the BLOCKED state when it is waiting to acquire a lock held by
+another thread.
+For example:
+synchronized void display() {
+// critical section
+}
+If one thread is already executing this synchronized method and another thread
+tries to enter it using the same object, the second thread may become BLOCKED.
+4. WAITING State
+A thread enters the WAITING state when it waits indefinitely for another thread
+to perform some action.
+Methods that can cause this state include:
+wait();
+join();
+Example:
+t.join();
+The calling thread waits until t terminates.
+5. TIMED_WAITING State
+A thread enters TIMED_WAITING when it waits for a specified period.
+Common examples:
+
+-- 13 of 28 --
+
+Thread.sleep(2000);
+or:
+t.join(2000);
+Example:
+try {
+Thread.sleep(2000);
+} catch (InterruptedException e) {
+e.printStackTrace();
+}
+The thread waits for approximately 2 seconds and then becomes runnable again.
+6. TERMINATED State
+When the run() method finishes, the thread enters the TERMINATED state.
+Example:
+class MyThread extends Thread {
+public void run() {
+System.out.println("Task completed");
+}
+}
+After run() completes:
+TERMINATED
+A terminated thread cannot be started again.
+Simple Example
+class MyThread extends Thread {
+public void run() {
+try {
+System.out.println("Thread is running");
+Thread.sleep(2000);
+
+-- 14 of 28 --
+
+System.out.println("Thread completed");
+} catch (InterruptedException e) {
+Thread.currentThread().interrupt();
+}
+}
+}
+class ThreadLifeCycleDemo {
+public static void main(String[] args)
+throws InterruptedException {
+MyThread t = new MyThread();
+// NEW
+System.out.println("Before start: " + t.getState());
+// RUNNABLE
+t.start();
+System.out.println("After start: " + t.getState());
+// TIMED_WAITING
+Thread.sleep(500);
+System.out.println("During sleep: " + t.getState());
+// Wait for thread to complete
+t.join();
+// TERMINATED
+System.out.println("After completion: " + t.getState());
+}
+}
+Possible Output
+Before start: NEW
+After start: RUNNABLE
+Thread is running
+During sleep: TIMED_WAITING
+Thread completed
+After completion: TERMINATED
+
+-- 15 of 28 --
+
+Thread States Summary
+State Description Example
+NEW Thread created but not
+started new Thread()
+RUNNABLE Thread ready to run / ex-
+ecuting start()
+BLOCKED Waiting for a monitor
+lock synchronized
+WAITING Waiting indefinitely wait(), join()
+TIMED_WAIT-
+ING
+Waiting for a specified
+time sleep(), join(2000)
+TERMINATED Execution completed run() finishes
+
+-- 16 of 28 --
+
+Multi threaded Programming in Java
+Multi threading is one of the most important features of Java. It allows a pro-
+gram to perform multiple tasks concurrently, improving responsiveness and
+resource utilization.
+What is a Thread?
+A thread is a lightweight unit of execution within a program.
+A Java program can have multiple threads executing different tasks at the same
+time.
+Example
+A web browser may use different threads for:
+ Downloading a file
+ Playing audio/video
+ Processing user input
+ Display web page etc..
+Process vs Thread in Java — Main Differences
+Feature Process Thread
+Definition A process is an independent pro-
+gram in execution.
+A thread is a unit of execu-
+tion within a process.
+Memory Has its own separate memory
+space.
+Threads share memory of
+the same process.
+Communica-
+tion
+Process-to-process communication
+is more difficult and slower.
+Threads communicate eas-
+ily through shared memory.
+Creation Process creation is relatively slow. Thread creation is gener-
+ally faster.
+Resources Has its own resources such as mem-
+ory and system resources.
+Shares most resources with
+other threads of the
+process.
+Failure
+Failure of one process normally
+does not directly affect another
+process.
+Failure of a thread can af-
+fect the entire process.
+Execution A process can contain one or more
+threads.
+A thread is part of a
+process.
+
+-- 17 of 28 --
+
+Feature Process Thread
+Context
+switching Generally more expensive. Generally less expensive.
+The Java Thread Model
+The Java thread model consists of:
+1. Main thread
+2. User-created threads
+3. Thread priorities
+4. Synchronization
+5. Thread scheduler
+6. Thread life cycle
+Main Thread
+The main thread is the first thread created by the JVM when a Java program
+starts.
+The main() method is executed by the main thread.
+class Demo {
+public static void main(String[] args) {
+System.out.println("Main thread is running");
+}
+}
+Important points
+ Created automatically by the JVM.
+ Execution starts from the main() method.
+ It can create other threads.
+ Other threads can execute concurrently with the main thread.
+JVM
+│
+└── Main Thread
+│
+└── main()
+│
+
+-- 18 of 28 --
+
+├── Creates Thread 1
+└── Creates Thread 2
+Example
+class MainThreadDemo {
+public static void main(String[] args) {
+Thread t = Thread.currentThread();
+System.out.println("Current Thread: " + t);
+System.out.println("Thread Name: " + t.getName());
+System.out.println("Thread Priority: " + t.getPriority());
+}
+}
+Possible Output
+Current Thread: Thread[main,5,main]
+Thread Name: main
+Thread Priority: 5
+The default priority of the main thread is normally:
+5
+Changing the Main Thread Name
+class MainThreadDemo {
+public static void main(String[] args) {
+Thread t = Thread.currentThread();
+t.setName("MainThread");
+System.out.println(t.getName());
+}
+}
+Output:
+MainThread
+
+-- 19 of 28 --
+
+Creating a Thread
+There are two traditional ways to create a thread in Java:
+Method 1: Extend the Thread class
+Method 2: Implement the Runnable interface
+Creating a Thread by Extending Thread
+Create a class that extends Thread and override the run() method.
+Syntax
+class MyThread extends Thread {
+public void run() {
+// thread task
+}
+}
+Then create an object and call start().
+Example
+class MyThread extends Thread {
+public void run() {
+System.out.println("Thread is running");
+}
+}
+class ThreadDemo {
+public static void main(String[] args) {
+MyThread t = new MyThread();
+t.start();
+}
+}
+Output:
+
+-- 20 of 28 --
+
+Thread is running
+Important
+Do not normally call:
+t.run();
+Instead call:
+t.start();
+start() creates a new thread and JVM eventually invokes run() in that thread.
+Calling run() directly executes it like an ordinary method in the current thread.
+Creating a Thread Using Runnable
+Another approach is to implement the Runnable interface.
+Example
+class MyTask implements Runnable {
+public void run() {
+System.out.println("Thread is running");
+}
+}
+class RunnableDemo {
+public static void main(String[] args) {
+MyTask task = new MyTask();
+Thread t = new Thread(task);
+t.start();
+}
+}
+Concept:
+MyTask
+↓
+Runnable
+↓
+Task
+
+-- 21 of 28 --
+
+Thread
+↓
+executes
+↓
+MyTask
+Here, MyTask is not a thread. It is a task that a Thread executes.
+⭐ One-line difference
+Extending Thread → "I am a Thread."
+Implementing Runnable → "I am a Task to be executed by a
+Thread."
+Creating Multiple Threads
+Java allows multiple threads to execute concurrently.
+Example
+class MyThread extends Thread {
+String name;
+MyThread(String name) {
+this.name = name;
+}
+public void run() {
+for (int i = 1; i <= 5; i++) {
+System.out.println(name + " : " + i);
+try {
+Thread.sleep(500);
+} catch (InterruptedException e) {
+System.out.println(e);
+}
+}
+}
+}
+class MultipleThreadsDemo {
+
+-- 22 of 28 --
+
+public static void main(String[] args) {
+MyThread t1 = new MyThread("Thread 1");
+MyThread t2 = new MyThread("Thread 2");
+MyThread t3 = new MyThread("Thread 3");
+t1.start();
+t2.start();
+t3.start();
+}
+}
+Possible output:
+Thread 1 : 1
+Thread 2 : 1
+Thread 3 : 1
+Thread 1 : 2
+Thread 3 : 2
+Thread 2 : 2
+...
+Important
+The output order is not guaranteed.
+The thread scheduler decides which runnable thread gets CPU time.
+Key concepts demonstrated
+Concept Meaning
+extends Thread Creates a thread class
+run() Contains the thread's task
+start() Starts a new thread
+sleep(500) Pauses the current thread for 500 ms
+t1, t2, t3 Three independent thread objects
+Multiple threads Threads can execute concurrently
+Scheduler Determines which thread gets CPU time
+InterruptedException Exception that may occur when a sleeping thread is
+interrupted
+
+-- 23 of 28 --
+
+isAlive() Method
+The isAlive() method checks whether a thread has started and has not yet termi-
+nated.
+Syntax
+thread.isAlive()
+It returns:
+true
+if the thread is still alive.
+Otherwise:
+false
+Example
+class MyThread extends Thread {
+public void run() {
+for (int i = 1; i <= 3; i++) {
+System.out.println(i);
+try {
+Thread.sleep(500);
+} catch (InterruptedException e) {
+e.printStackTrace();
+}
+}
+}
+}
+class AliveDemo {
+public static void main(String[] args)
+throws InterruptedException {
+MyThread t = new MyThread();
+System.out.println("Before start: " + t.isAlive());
+
+-- 24 of 28 --
+
+t.start();
+System.out.println("After start: " + t.isAlive());
+t.join();
+System.out.println("After completion: " + t.isAlive());
+}
+}
+Possible output:
+Before start: false
+After start: true
+1
+2
+3
+After completion: false
+join() Method
+The join() method makes the current thread wait until another thread fin-
+ishes.
+Syntax
+t.join();
+Example
+class MyThread extends Thread {
+public void run() {
+for (int i = 1; i <= 5; i++) {
+System.out.println("Child Thread: " + i);
+}
+}
+}
+class JoinDemo {
+public static void main(String[] args)
+
+-- 25 of 28 --
+
+throws InterruptedException {
+MyThread t = new MyThread();
+t.start();
+t.join();
+System.out.println("Main thread continues");
+}
+}
+Here, the main thread waits until t completes.
+join() with timeout
+t.join(1000);
+The current thread waits for at most approximately 1000 milliseconds for t to
+terminate.
+Difference Between isAlive() and join()
+isAlive() join()
+Checks whether a thread is
+alive
+Waits for another thread to
+finish
+Returns boolean Returns void
+Does not stop/wait the cur-
+rent thread
+Causes the current thread to
+wait
+Used to check thread status Used to coordinate thread
+completion
+Key Difference
+Statement Meaning
+t.start() Start the child thread
+t.run() Execute run() as a normal method; does not create a
+new thread
+t.join() Wait until child thread t finishes
+t.isAlive() Check whether thread t is still alive
+
+-- 26 of 28 --
+
+Thread Priorities
+Every Java thread has a priority.
+Java provides three predefined priority constants:
+Thread.MIN_PRIORITY
+Thread.NORM_PRIORITY
+Thread.MAX_PRIORITY
+Their values are:
+Constant Valu
+e
+MIN_PRIORITY 1
+NORM_PRIOR-
+ITY 5
+MAX_PRIORITY 10
+The default thread priority is normally:
+5
+Setting Priority
+t.setPriority(8);
+Getting Priority
+int p = t.getPriority();
+Example
+class PriorityDemo {
+public static void main(String[] args) {
+Thread t1 = new Thread(() -> {
+System.out.println("Thread 1");
+});
+Thread t2 = new Thread(() -> {
+System.out.println("Thread 2");
+});
+t1.setPriority(Thread.MIN_PRIORITY);
+
+-- 27 of 28 --
+
+t2.setPriority(Thread.MAX_PRIORITY);
+System.out.println("T1 Priority: " + t1.getPriority());
+System.out.println("T2 Priority: " + t2.getPriority());
+t1.start();
+t2.start();
+}
+}
+Important Note
+Thread priority is a scheduling hint, not a guarantee.
+A higher-priority thread is not guaranteed to execute before a lower-priority
+thread.
+Key Methods
+Method Purpose Example
+setPriority() Sets thread prior-
+ity t1.setPriority(1)
+getPriority() Gets thread prior-
+ity t1.getPriority()
+MIN_PRIORITY Minimum priority 1
+NORM_PRIOR-
+ITY
+Normal/default
+priority 5
+MAX_PRIORITY Maximum priority 10
+
+-- 28 of 28 --
+
